@@ -22,26 +22,51 @@ public_users.post("/register", (req,res) => {
     return res.status(404).json({message: "Unable to register user."});
 });
 
+getBooksPromise = new Promise((resolve, reject) => {
+    resolve(books); 
+});
+
 // Get the book list available in the shop
 public_users.get('/',function (req, res) {
-   return res.status(200).send(books);
+  getBooksPromise.then((retrievedBooks) => {
+   return res.status(200).send(retrievedBooks);
+  });
 });
+
+let getBookByISBN = function(isbn) { return new Promise((resolve, reject) => {
+    resolve(books[isbn]);
+  });
+}
 
 // Get book details based on ISBN
 public_users.get('/isbn/:isbn',function (req, res) {
-  //Write your code here
-  return res.status(200).send(books[req.params.isbn]);
+  getBookByISBN(req.params.isbn).then((book) => {
+  return res.status(200).send(book);
+  });
  });
-  
+
+ 
+ let getBookByAuthor = function(author) { return new Promise((resolve, reject) => {
+    resolve(Object.values(books).filter(book => book.author === author));
+  });
+}
 // Get book details based on author
 public_users.get('/author/:author',function (req, res) {
-  return res.status(200).send(Object.values(books).filter(book => book.author === req.params.author));
+  getBookByAuthor(req.params.author).then((books) => {
+  return res.status(200).send(books);
+  });
 });
+
+ let getBookByTitle = function(title) { return new Promise((resolve, reject) => {
+    resolve(Object.values(books).filter(book => book.title === title));
+  });
+}
 
 // Get all books based on title
 public_users.get('/title/:title',function (req, res) {
-  //Write your code here
-  return res.status(200).send(Object.values(books).filter(book => book.title === req.params.title));
+  getBookByTitle(req.params.title).then((books) => {
+    return res.status(200).send(books);
+  });
 });
 
 //  Get book review
